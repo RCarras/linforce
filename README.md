@@ -8,9 +8,9 @@ Module based on btmp/wtmp files to search for possible brute force attacks compa
 
 # Log Files
 - BTMP Linux Log: contains failed login (remote and local) attempts.
-Path: /var/log/btmp* (*: could be more than one file).
+*Path*: /var/log/btmp* (*: could be more than one file).
 - WTMP Linux Log: contains successful login (remote and local) attempts.
-Path: /var/log/wtmp* (*: could be more than one file).
+*Path*: /var/log/wtmp* (*: could be more than one file).
 
 # Use
 1. Download the code:
