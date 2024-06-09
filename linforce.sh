@@ -1,5 +1,75 @@
 #!/bin/bash
 
+#!/bin/bash
+
+# Req for bruteforce variable
+bruteforce() {
+    while true; do
+        read -p "Select how many attempts you will consider as bruteforce: " brute_force
+        # Check if it's a valid number
+        if [[ "$numero" =~ ^-?[0-9]+$ ]]; then
+            echo "Tries to be considered as brute force: " $brute_force
+            sleep 3
+            echo
+            break
+        else
+            echo "Invalid entry. You should select a valid number."
+            echo
+        fi
+    done
+}
+
+# Req for time interval variable
+timeinterval() {
+    while true; do
+        read -p "Select how much time you will consider as consecutive attempts (time interval between attemps): " time_interval
+        # Check if it's a number
+        if [[ "$numero" =~ ^-?[0-9]+$ ]]; then
+            echo "Tries to be considered as consecutive attempts: " $time_interval
+            sleep 3
+            echo
+            break
+        else
+            echo "Invalid entry. You should select a valid number."
+            echo
+        fi
+    done
+}
+
+# Req for min timestamp variable
+mintimestamp() {
+    while true; do
+        read -p "Init Timestamp. Select analysis start date: [Date Format: YYYYmmddHHMMSS]" min_timestamp
+        # Check if it's a number
+        if [[ "$numero" =~ ^-?[0-9]+$ ]]; then
+            echo "Init Timestamp: " $min_timestamp
+            sleep 3
+            echo
+            break
+        else
+            echo "Invalid entry. You should select a valid number."
+            echo
+        fi
+    done
+}
+
+# Req for max timestamp variable
+maxtimestamp() {
+    while true; do
+        read -p "Last Timestamp. Select analysis finish date: [Date Format: YYYYmmddHHMMSS]" max_timestamp
+        # Check if it's a number
+        if [[ "$numero" =~ ^-?[0-9]+$ ]]; then
+            echo "Init Timestamp: " $max_timestamp
+            sleep 3
+            echo
+            break
+        else
+            echo "Invalid entry. You should select a valid number."
+            echo
+        fi
+    done
+}
+
 linux_bruteforce_analysis() {
 
     local thisnow=$(date +%Y%m%d)
@@ -36,12 +106,34 @@ linux_bruteforce_analysis() {
     local -A ips_used
     # Global Brute Force Variables | PODRIAMOS ADAPTARLO A VELOCI Y METER LAS VARIABLES DENTRO DE LA CONFIGURACIÓN DEL MÓDULO
     # Consecutive attempts to be considered as bruteforce
-    local brute_force=80
-    # Interval between considered consecutive attempts
-    local time_interval=30
-    local min_timestamp=20220901000000
+    read -n 1 -p "Do you want to select consecutive attempts considered as bruteforce? (Default = 80) [YyNn] " yn
+    if [[ yn == [sSyY] ]]; then
+     bruteforce
+    else
+     local brute_force=80
+    fi
+    # Interval between tries considered consecutive attempts
+    read -n 1 -p "Do you want to select time interval (seconds) between tries considered as consecutive attempts? (Default = 30 seconds) [YyNn] " yn
+    if [[ yn == [sSyY] ]]; then
+     timeinterval
+    else
+     local time_interval=30
+    fi
+    # Init date for the analysis
+    read -n 1 -p "Do you want to select Init Timestamp for the analysis? (Default = 20220901000000) [YyNn] " yn
+    if [[ yn == [sSyY] ]]; then
+     mintimestamp
+    else
+     local min_timestamp=20220901000000
+    fi
     local min_timestamp_epoch=$(date -d "${min_timestamp:0:4}-${min_timestamp:4:2}-${min_timestamp:6:2} ${min_timestamp:8:2}:${min_timestamp:10:2}:${min_timestamp:12:2}" +"%s")
-    local max_timestamp # SI SE PONE MAX_TIMESTAMP SE CREA UN ARCHIVO DE REDZONE ATTEMPTS, PARA VER LOS INTENTOS ENTRE UNA FECHA
+    # Select finish date for the redzone analysis
+    read -n 1 -p "Do you want to select Finish Timestamp to delimite a redzone? (Default = Current Date) [YyNn] " yn
+    if [[ yn == [sSyY] ]]; then
+     maxtimestamp
+    else
+     local max_timestamp
+    fi    
     if [[ ! -z $max_timestamp ]]; then
         local max_timestamp_epoch=$(date -d "${max_timestamp:0:4}-${max_timestamp:4:2}-${max_timestamp:6:2} ${max_timestamp:8:2}:${max_timestamp:10:2}:${max_timestamp:12:2}" +"%s")
     fi
