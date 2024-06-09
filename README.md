@@ -14,10 +14,14 @@ Path: /var/log/wtmp* (*: could be more than one file).
 
 # Use
 1. Download the code:
+
 <code> git clone https://github.com/RCarras/linforce.git </code>
-3. Permissions:
+2. Permissions:
+
 <code> chmod +x linforce.sh </code>
-4. Execution:
+3. Execution:
+
 <code> sudo ./linforce.sh </code>
-5. Check results:
+4. Check results:
+
 <code> /tmp/linforce_analysis </code>
