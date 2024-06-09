@@ -16,11 +16,14 @@ Module based on btmp/wtmp files to search for possible brute force attacks compa
 1. Download the code:
 <code> git clone https://github.com/RCarras/linforce.git </code>
 
-2. Give permissions to linforce script:
+2. Join script path:
+<code> cd linforce </code>
+
+4. Give permissions to linforce script:
 <code> chmod +x linforce.sh </code>
 
-3. Execution:
+5. Execution:
 <code> sudo ./linforce.sh </code>
 
-4. Check results:
+6. Check results:
 <code> /tmp/linforce_analysis </code>
