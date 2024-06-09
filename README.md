@@ -13,7 +13,7 @@ Path: /var/log/btmp* (*: could be more than one file).
 Path: /var/log/wtmp* (*: could be more than one file).
 
 # Use
-1. Download the code: git clone
+1. Download the code: git clone https://github.com/RCarras/linforce.git
 2. Permissions: chmod +x linforce.sh
 3. Execution: sudo ./linforce.sh
-4. Check results: 
+4. Check results: /tmp/veloci_out
