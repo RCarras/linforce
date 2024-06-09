@@ -26,4 +26,4 @@ Module based on btmp/wtmp files to search for possible brute force attacks compa
 <code> sudo ./linforce.sh </code>
 
 6. Check results:
-<code> /tmp/linforce_analysis </code>
+``` /tmp/linforce_analysis ```
