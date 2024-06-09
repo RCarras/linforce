@@ -4,7 +4,7 @@ linux_bruteforce_analysis() {
 
     local thisnow=$(date +%Y%m%d)
     local evo_log="/var/log"
-    local modod="/tmp/linforce_out" # Configurar carpeta de salida, por ejemplo: /tmp
+    local modod="/tmp/linforce_analysis" # Configurar carpeta de salida, por ejemplo: /tmp
 
     if [[ ! -d $modod ]]; then
         mkdir -p $modod
