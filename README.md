@@ -13,7 +13,11 @@ Path: /var/log/btmp* (*: could be more than one file).
 Path: /var/log/wtmp* (*: could be more than one file).
 
 # Use
-1. Download the code: git clone https://github.com/RCarras/linforce.git
-2. Permissions: chmod +x linforce.sh
-3. Execution: sudo ./linforce.sh
-4. Check results: <code> /tmp/linforce_analysis </code>
+1. Download the code:
+<code> git clone https://github.com/RCarras/linforce.git </code>
+3. Permissions:
+<code> chmod +x linforce.sh </code>
+4. Execution:
+<code> sudo ./linforce.sh </code>
+5. Check results:
+<code> /tmp/linforce_analysis </code>
