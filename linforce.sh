@@ -4,7 +4,7 @@ linux_bruteforce_analysis() {
 
     local thisnow=$(date +%Y%m%d)
     local evo_log="/var/log"
-    local modod="/tmp/linforce_analysis" # Configurar carpeta de salida, por ejemplo: /tmp
+    local modod="/tmp/linforce_out" # Configurar carpeta de salida, por ejemplo: /tmp
 
     if [[ ! -d $modod ]]; then
         mkdir -p $modod
@@ -327,4 +327,27 @@ linux_bruteforce_analysis() {
          l=$(date -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
          # Check if timestamp is greater than last attempt timestamp and if the user isn't in hits file at this moment
          if [[ $(echo ${l}) -gt ${last_attempt[${thisuser}]} && -z $(cat $hitsof 2>/dev/null | egrep "Succesful.*Dynamic.*$thisuser.*$(date -ud @$thistimestamp)") ]]; then
-          diff_time=
+          diff_time=$(($(echo ${l})-${last_attempt[${thisuser}]}))
+          # Check if difference time is lower than time interval and if the user isn't in hits file add to it  
+          if [[ "${diff_time}" -le "${time_interval}" && -z $(cat $hitsof 2>/dev/null | grep $thisuser) ]]; then
+           echo "[WARN] Successful Login to '$thisuser' user in a Possible Dynamic IP attack from IP $thisip at $(date -ud @$thistimestamp) time, after ${diff_ip_count[$thisuser]} attempts [WARN]" >> $hitsof
+           echo "Ips used: ${ips_used[$thisuser]}" >> $hitsof
+          fi
+         fi
+        done
+       fi
+      fi
+     fi
+    done
+
+    # If there is a Red Zone defined it will create a new file with those attempts
+    if [[ ! -z $max_timestamp_epoch ]]; then
+     cat $attemptsof | while read -r line; do
+      if [[ $(echo $line | awk '{print $9}') -ge $min_timestamp_epoch && $(echo $line | awk '{print $9}') -le $max_timestamp_epoch ]]; then
+       echo $line >> $redzoneof
+      fi
+     done
+    fi
+}
+
+linux_bruteforce_analysis
