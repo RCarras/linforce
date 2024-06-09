@@ -16,7 +16,7 @@ Path: /var/log/wtmp* (*: could be more than one file).
 1. Download the code:
 <code> git clone https://github.com/RCarras/linforce.git </code>
 
-2. Permissions:
+2. Give permissions to linforce script:
 <code> chmod +x linforce.sh </code>
 
 3. Execution:
