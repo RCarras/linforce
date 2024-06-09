@@ -16,4 +16,4 @@ Path: /var/log/wtmp* (*: could be more than one file).
 1. Download the code: git clone https://github.com/RCarras/linforce.git
 2. Permissions: chmod +x linforce.sh
 3. Execution: sudo ./linforce.sh
-4. Check results: /tmp/veloci_out
+4. Check results: /tmp/linforce_analysis
