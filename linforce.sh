@@ -1,68 +1,85 @@
 #!/bin/bash
 
-# Req for bruteforce variable
-bruteforce() {
-    while true; do
-        read -p "Select how many attempts you will consider as bruteforce: " brute_force
-        # Check if it's a valid number
-        if [[ "$brute_force" =~ ^-?[0-9]+$ ]]; then
-            echo "- Tries to be considered as brute force: " $brute_force
-            sleep 3
-            break
-        else
-            echo "Invalid entry. You should select a valid number."
-            echo
-        fi
-    done
+# Show help
+show_help() {
+    echo "Usage: $0 [options]"
+    echo
+    echo "Options:"
+    echo "  -b <number>      Number of attempts to consider as brute force (default: 80)"
+    echo "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 30 seconds)"
+    echo "  -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)"
+    echo "  -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)"
+    echo "  -h               Show this help message"
 }
 
-# Req for time interval variable
-timeinterval() {
-    while true; do
-        read -p "Select how much time you will consider as consecutive attempts (time interval between attemps): " time_interval
-        # Check if it's a number
-        if [[ "$time_interval" =~ ^-?[0-9]+$ ]]; then
-            echo "- Time Interval between attempts to be considered as consecutive: " $time_interval
-            sleep 3
-            break
-        else
-            echo "Invalid entry. You should select a valid number."
-            echo
-        fi
-    done
+# Validate natural numbers
+validate_number() {
+    local num="$1"
+    if [[ "$num" =~ ^[0-9]+$ ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
-# Req for min timestamp variable
-mintimestamp() {
-    while true; do
-        read -p "Init Timestamp. Select analysis start date: [Date Format: YYYYmmddHHMMSS]" min_timestamp
-        # Check if it's a number
-        if [[ "$min_timestamp" =~ ^-?[0-9]+$ ]]; then
-            echo "- Init Timestamp: " $min_timestamp
-            sleep 3
-            break
-        else
-            echo "Invalid entry. You should select a valid number."
-            echo
-        fi
-    done
-}
+# Variables por defecto
+brute_force=80
+time_interval=30
+min_timestamp="20220901000000"
+max_timestamp=""
 
-# Req for max timestamp variable
-maxtimestamp() {
-    while true; do
-        read -p "Last Timestamp. Select analysis finish date: [Date Format: YYYYmmddHHMMSS]" max_timestamp
-        # Check if it's a number
-        if [[ "$max_timestamp" =~ ^-?[0-9]+$ ]]; then
-            echo "Init Timestamp: " $max_timestamp
-            sleep 3
-            break
-        else
-            echo "Invalid entry. You should select a valid number."
-            echo
-        fi
+# Parse options
+    while getopts ":b:t:i:m:h" opt; do
+        case $opt in
+            b)
+                if validate_number "$OPTARG"; then
+                    brute_force="$OPTARG"
+                else
+                    echo "Invalid brute force attempts number: $OPTARG"
+                    exit 1
+                fi
+                ;;
+            t)
+                if validate_number "$OPTARG"; then
+                    time_interval="$OPTARG"
+                else
+                    echo "Invalid time interval: $OPTARG"
+                    exit 1
+                fi
+                ;;
+            i)
+                if validate_number "$OPTARG"; then
+                    min_timestamp="$OPTARG"
+                else
+                    echo "Invalid initial timestamp: $OPTARG"
+                    exit 1
+                fi
+                ;;
+            m)
+                if validate_number "$OPTARG"; then
+                    max_timestamp="$OPTARG"
+                else
+                    echo "Invalid maximum timestamp: $OPTARG"
+                    exit 1
+                fi
+                ;;
+            h)
+                show_help
+                exit 0
+                ;;
+            \?)
+                echo "Invalid option: -$OPTARG"
+                show_help
+                exit 1
+                ;;
+            :)
+                echo "Option -$OPTARG requires an argument."
+                show_help
+                exit 1
+                ;;
+        esac
     done
-}
+
 
 linux_bruteforce_analysis() {
 
@@ -98,56 +115,11 @@ linux_bruteforce_analysis() {
     local -A diff_ip_count
     local -A last_ip
     local -A ips_used
-    # Global Brute Force Variables | PODRIAMOS ADAPTARLO A VELOCI Y METER LAS VARIABLES DENTRO DE LA CONFIGURACIÓN DEL MÓDULO
-    # Consecutive attempts to be considered as bruteforce
-    read -s -n 1 -p "Do you want to select consecutive attempts considered as bruteforce? (Default = 80) [Yy/Nn] " yn
-    if [[ $yn == [sSyY] ]]; then
-     echo
-     bruteforce
-     echo
-    else
-     echo
-     local brute_force=80
-     echo
-    fi
-    # Interval between tries considered consecutive attempts
-    read -s -n 1 -p "Do you want to select time interval (seconds) between tries considered as consecutive attempts? (Default = 30 seconds) [Yy/Nn] " yn
-    if [[ $yn == [sSyY] ]]; then
-     echo
-     timeinterval
-     echo
-    else
-     echo
-     local time_interval=30
-     echo
-    fi
-    # Init date for the analysis
-    read -s -n 1 -p "Do you want to select Init Timestamp for the analysis? (Default = 20220901000000) [Yy/Nn] " yn
-    if [[ $yn == [sSyY] ]]; then
-     echo
-     mintimestamp
-     echo
-    else
-     echo
-     local min_timestamp=20220901000000
-     echo
-    fi
+    # Epoch timestamps
     local min_timestamp_epoch=$(date -d "${min_timestamp:0:4}-${min_timestamp:4:2}-${min_timestamp:6:2} ${min_timestamp:8:2}:${min_timestamp:10:2}:${min_timestamp:12:2}" +"%s")
-    # Select finish date for the redzone analysis
-    read -s -n 1 -p "Do you want to select Finish Timestamp to delimite a redzone? (Default = Current Date) [Yy/Nn] " yn
-    if [[ $yn == [sSyY] ]]; then
-     echo
-     maxtimestamp
-     echo
-    else
-     echo
-     local max_timestamp
-     echo
-    fi    
     if [[ ! -z $max_timestamp ]]; then
         local max_timestamp_epoch=$(date -d "${max_timestamp:0:4}-${max_timestamp:4:2}-${max_timestamp:6:2} ${max_timestamp:8:2}:${max_timestamp:10:2}:${max_timestamp:12:2}" +"%s")
     fi
-
     # Store previous output files
     if [[ ! -d "$modod/previous_analysis" ]]; then
      mkdir $prevfolder
