@@ -39,7 +39,7 @@ sudo ./linforce.sh
 ```
 
 # Usage Options
-*-b *< number >*:      Number of attempts to consider as brute force (default: 80)
+*-b < number >*:      Number of attempts to consider as brute force (default: 80)
 
 *-t < seconds >*:     Time interval between attempts to be considered as consecutive (default: 30 seconds)
 
