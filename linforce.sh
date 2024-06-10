@@ -3,10 +3,9 @@
 # Req for bruteforce variable
 bruteforce() {
     while true; do
-        echo 
         read -p "Select how many attempts you will consider as bruteforce: " brute_force
         # Check if it's a valid number
-        if [[ "$numero" =~ ^[0-9]+$ ]]; then
+        if [[ "$brute_force" =~ ^[0-9]+$ ]]; then
             echo "Tries to be considered as brute force: " $brute_force
             sleep 3
             echo
@@ -21,10 +20,9 @@ bruteforce() {
 # Req for time interval variable
 timeinterval() {
     while true; do
-        echo
         read -p "Select how much time you will consider as consecutive attempts (time interval between attemps): " time_interval
         # Check if it's a number
-        if [[ "$numero" =~ ^[0-9]+$ ]]; then
+        if [[ "$time_interval" =~ ^[0-9]+$ ]]; then
             echo "Tries to be considered as consecutive attempts: " $time_interval
             sleep 3
             echo
@@ -39,10 +37,9 @@ timeinterval() {
 # Req for min timestamp variable
 mintimestamp() {
     while true; do
-        echo
         read -p "Init Timestamp. Select analysis start date: [Date Format: YYYYmmddHHMMSS]" min_timestamp
         # Check if it's a number
-        if [[ "$numero" =~ ^[0-9]+$ ]]; then
+        if [[ "$min_timestamp" =~ ^[0-9]+$ ]]; then
             echo "Init Timestamp: " $min_timestamp
             sleep 3
             echo
@@ -57,10 +54,9 @@ mintimestamp() {
 # Req for max timestamp variable
 maxtimestamp() {
     while true; do
-        echo
         read -p "Last Timestamp. Select analysis finish date: [Date Format: YYYYmmddHHMMSS]" max_timestamp
         # Check if it's a number
-        if [[ "$numero" =~ ^[0-9]+$ ]]; then
+        if [[ "$max_timestamp" =~ ^[0-9]+$ ]]; then
             echo "Init Timestamp: " $max_timestamp
             sleep 3
             echo
