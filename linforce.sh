@@ -104,8 +104,8 @@ linux_bruteforce_analysis() {
     local -A ips_used
     # Global Brute Force Variables | PODRIAMOS ADAPTARLO A VELOCI Y METER LAS VARIABLES DENTRO DE LA CONFIGURACIÓN DEL MÓDULO
     # Consecutive attempts to be considered as bruteforce
-    read -s -n 1 -p "Do you want to select consecutive attempts considered as bruteforce? (Default = 80) [YyNn] " yn
-    if [[ yn == [sSyY] ]]; then
+    read -s -n 1 -p "Do you want to select consecutive attempts considered as bruteforce? (Default = 80) [Yy/Nn] " yn
+    if [[ $yn == [sSyY] ]]; then
      echo
      bruteforce
      echo
@@ -115,8 +115,8 @@ linux_bruteforce_analysis() {
      echo
     fi
     # Interval between tries considered consecutive attempts
-    read -s -n 1 -p "Do you want to select time interval (seconds) between tries considered as consecutive attempts? (Default = 30 seconds) [YyNn] " yn
-    if [[ yn == [sSyY] ]]; then
+    read -s -n 1 -p "Do you want to select time interval (seconds) between tries considered as consecutive attempts? (Default = 30 seconds) [Yy/Nn] " yn
+    if [[ $yn == [sSyY] ]]; then
      echo
      timeinterval
      echo
@@ -126,8 +126,8 @@ linux_bruteforce_analysis() {
      echo
     fi
     # Init date for the analysis
-    read -s -n 1 -p "Do you want to select Init Timestamp for the analysis? (Default = 20220901000000) [YyNn] " yn
-    if [[ yn == [sSyY] ]]; then
+    read -s -n 1 -p "Do you want to select Init Timestamp for the analysis? (Default = 20220901000000) [Yy/Nn] " yn
+    if [[ $yn == [sSyY] ]]; then
      echo
      mintimestamp
      echo
@@ -138,8 +138,8 @@ linux_bruteforce_analysis() {
     fi
     local min_timestamp_epoch=$(date -d "${min_timestamp:0:4}-${min_timestamp:4:2}-${min_timestamp:6:2} ${min_timestamp:8:2}:${min_timestamp:10:2}:${min_timestamp:12:2}" +"%s")
     # Select finish date for the redzone analysis
-    read -s -n 1 -p "Do you want to select Finish Timestamp to delimite a redzone? (Default = Current Date) [YyNn] " yn
-    if [[ yn == [sSyY] ]]; then
+    read -s -n 1 -p "Do you want to select Finish Timestamp to delimite a redzone? (Default = Current Date) [Yy/Nn] " yn
+    if [[ $yn == [sSyY] ]]; then
      echo
      maxtimestamp
      echo
