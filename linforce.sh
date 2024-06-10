@@ -5,10 +5,9 @@ bruteforce() {
     while true; do
         read -p "Select how many attempts you will consider as bruteforce: " brute_force
         # Check if it's a valid number
-        if [[ "$brute_force" =~ ^[0-9]+$ ]]; then
-            echo "Tries to be considered as brute force: " $brute_force
+        if [[ "$brute_force" =~ ^-?[0-9]+$ ]]; then
+            echo "- Tries to be considered as brute force: " $brute_force
             sleep 3
-            echo
             break
         else
             echo "Invalid entry. You should select a valid number."
@@ -22,10 +21,9 @@ timeinterval() {
     while true; do
         read -p "Select how much time you will consider as consecutive attempts (time interval between attemps): " time_interval
         # Check if it's a number
-        if [[ "$time_interval" =~ ^[0-9]+$ ]]; then
-            echo "Tries to be considered as consecutive attempts: " $time_interval
+        if [[ "$time_interval" =~ ^-?[0-9]+$ ]]; then
+            echo "- Time Interval between attempts to be considered as consecutive: " $time_interval
             sleep 3
-            echo
             break
         else
             echo "Invalid entry. You should select a valid number."
@@ -39,10 +37,9 @@ mintimestamp() {
     while true; do
         read -p "Init Timestamp. Select analysis start date: [Date Format: YYYYmmddHHMMSS]" min_timestamp
         # Check if it's a number
-        if [[ "$min_timestamp" =~ ^[0-9]+$ ]]; then
-            echo "Init Timestamp: " $min_timestamp
+        if [[ "$min_timestamp" =~ ^-?[0-9]+$ ]]; then
+            echo "- Init Timestamp: " $min_timestamp
             sleep 3
-            echo
             break
         else
             echo "Invalid entry. You should select a valid number."
@@ -56,10 +53,9 @@ maxtimestamp() {
     while true; do
         read -p "Last Timestamp. Select analysis finish date: [Date Format: YYYYmmddHHMMSS]" max_timestamp
         # Check if it's a number
-        if [[ "$max_timestamp" =~ ^[0-9]+$ ]]; then
+        if [[ "$max_timestamp" =~ ^-?[0-9]+$ ]]; then
             echo "Init Timestamp: " $max_timestamp
             sleep 3
-            echo
             break
         else
             echo "Invalid entry. You should select a valid number."
