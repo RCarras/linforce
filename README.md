@@ -40,8 +40,12 @@ sudo ./linforce.sh
 
 # Usage Options
 -b <number>      Number of attempts to consider as brute force (default: 80)
+
 -t <seconds>     Time interval between attempts to be considered as consecutive (default: 30 seconds)
+
 -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)
+
 -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)
+
 -h               Show this help message
 
