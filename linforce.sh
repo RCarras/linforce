@@ -31,7 +31,7 @@ max_timestamp=""
 modod="/tmp/linforce_analysis"
 
 # Parse options
-    while getopts ":b:t:i:m:h" opt; do
+    while getopts ":b:t:i:m:o:h" opt; do
         case $opt in
             b)
                 if validate_number "$OPTARG"; then
