@@ -1,10 +1,6 @@
 # linforce
 Linux BruteForce detection
 
-**Creators**:
-- _Rafael Carrasco_: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
-- _David Rosado_: https://www.linkedin.com/in/david-rosado-soria-4416b8230
-
 # Description
 Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs:
 - Brute Force detection: Time interval between failed logins attempts (BTMP). To determine if there is brute force.
@@ -50,6 +46,10 @@ sudo ./linforce.sh
 - *-i < timestamp >*:   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)
 
 - *-m < timestamp >*:   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)
+
+# Creators
+- _Rafael Carrasco_: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
+- _David Rosado_: https://www.linkedin.com/in/david-rosado-soria-4416b8230
 
 - *-h*:               Show this help message
 
