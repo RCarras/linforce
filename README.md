@@ -46,10 +46,10 @@ sudo ./linforce.sh
 - *-i < timestamp >*:   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)
 
 - *-m < timestamp >*:   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)
+  
+- - *-h*:               Show this help message
 
 # Creators
-- _Rafael Carrasco_: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
-- _David Rosado_: https://www.linkedin.com/in/david-rosado-soria-4416b8230
-
-- *-h*:               Show this help message
+- **Rafael Carrasco**: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
+- **David Rosado**: https://www.linkedin.com/in/david-rosado-soria-4416b8230
 
