@@ -2,8 +2,8 @@
 Linux BruteForce detection
 
 **Creators**:
-- **Rafael Carrasco**: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
-- **David Rosado**: https://www.linkedin.com/in/david-rosado-soria-4416b8230
+- _Rafael Carrasco_: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
+- _David Rosado_: https://www.linkedin.com/in/david-rosado-soria-4416b8230
 
 # Description
 Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs:
