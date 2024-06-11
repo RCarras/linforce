@@ -1,6 +1,10 @@
 # linforce
 Linux BruteForce detection
 
+Rafael Carrasco https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
+
+David Rosado https://www.linkedin.com/in/david-rosado-soria-4416b8230?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
+
 # Description
 Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs:
 - Brute Force detection: Time interval between failed logins attempts (BTMP). To determine if there is brute force.
