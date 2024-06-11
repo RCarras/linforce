@@ -1,9 +1,9 @@
 # linforce
 Linux BruteForce detection
 
-Rafael Carrasco https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
-
-David Rosado https://www.linkedin.com/in/david-rosado-soria-4416b8230?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app
+**Creators**:
+- **Rafael Carrasco**: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
+- **David Rosado**: https://www.linkedin.com/in/david-rosado-soria-4416b8230
 
 # Description
 Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs:
@@ -17,27 +17,27 @@ Module based on btmp/wtmp files to search for possible brute force attacks compa
 *Path*: /var/log/wtmp* (*: could be more than one file).
 
 # Use
-1. Download the code:
+1. **Download the code**:
 ```
 git clone https://github.com/RCarras/linforce.git
 ```
 
-2. Join script path:
+2. **Join script path**:
 ```
 cd linforce
 ```
 
-3. Give permissions to linforce script:
+3. **Give permissions to linforce script**:
 ```
 chmod +x linforce.sh
 ```
 
-4. Default Execution:
+4. **Default Execution**:
 ```
 sudo ./linforce.sh
 ```
 
-5. Check results:
+5. **Check results**:
 ```
 /tmp/linforce_analysis
 ```
