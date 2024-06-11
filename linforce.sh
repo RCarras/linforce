@@ -9,6 +9,7 @@ show_help() {
     echo "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 30 seconds)"
     echo "  -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)"
     echo "  -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)"
+    echo "  -o <output path> Path to store output (default: /tmp/linforce_analysis)"    
     echo "  -h               Show this help message"
 }
 
@@ -27,6 +28,7 @@ brute_force=80
 time_interval=30
 min_timestamp="20220901000000"
 max_timestamp=""
+modod="/tmp/linforce_analysis"
 
 # Parse options
     while getopts ":b:t:i:m:h" opt; do
@@ -63,6 +65,9 @@ max_timestamp=""
                     exit 1
                 fi
                 ;;
+            o)
+                modod="$OPTARG"
+                ;;
             h)
                 show_help
                 exit 0
@@ -85,8 +90,7 @@ linux_bruteforce_analysis() {
 
     local thisnow=$(date +%Y%m%d)
     local evo_log="/var/log"
-    local modod="/tmp/linforce_analysis" # Configurar carpeta de salida, por ejemplo: /tmp
-
+    
     if [[ ! -d $modod ]]; then
         mkdir -p $modod
     fi
