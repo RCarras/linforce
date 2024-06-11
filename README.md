@@ -2,7 +2,7 @@
 Linux BruteForce detection
 
 # Description
-Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs:
+Module based on btmp/wtmp files to search for possible brute force attacks comparing the logs. _Features_:
 - Brute Force detection: Time interval between failed logins attempts (BTMP). To determine if there is brute force.
 - Brute Force followed by a successful login detection: Time interval if there are more than the determined failed logins (considered as risky or brute force) with any successful login (WTMP).
 
