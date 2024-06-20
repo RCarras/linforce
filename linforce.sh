@@ -6,7 +6,7 @@ show_help() {
     echo
     echo "Options:"
     echo "  -b <number>      Number of attempts to consider as brute force (default: 80)"
-    echo "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 30 seconds)"
+    echo "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 45 seconds)"
     echo "  -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)"
     echo "  -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)"
     echo "  -o <output path> Path to store output (default: /tmp/linforce_analysis)"    
@@ -25,7 +25,7 @@ validate_number() {
 
 # Variables por defecto
 brute_force=80
-time_interval=30
+time_interval=45
 min_timestamp="20220901000000"
 max_timestamp=""
 modod="/tmp/linforce_analysis"
