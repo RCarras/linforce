@@ -1,16 +1,33 @@
 #!/bin/bash
 
+# Commands absolute paths 
+if [[ -n /bin/which ]]; then
+    WHICH_CMD="/bin/which"
+else
+    WHICH_CMD="/usr/bin/which"
+fi
+DATE_CMD=$($WHICH_CMD date)
+AWK_CMD=$($WHICH_CMD awk)
+GREP_CMD=$($WHICH_CMD grep)
+UTMP_CMD=$($WHICH_CMD utmpdump)
+MKDIR_CMD=$($WHICH_CMD mkdir)
+ECHO_CMD=$($WHICH_CMD echo)
+SED_CMD=$($WHICH_CMD sed)
+UNIQ_CMD=$($WHICH_CMD uniq)
+RSYNC_CMD=$($WHICH_CMD rsync)
+FIND_CMD=$($WHICH_CMD find)
+
 # Show help
 show_help() {
-    echo "Usage: $0 [options]"
-    echo
-    echo "Options:"
-    echo "  -b <number>      Number of attempts to consider as brute force (default: 80)"
-    echo "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 45 seconds)"
-    echo "  -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)"
-    echo "  -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)"
-    echo "  -o <output path> Path to store output (default: /tmp/linforce_analysis)"    
-    echo "  -h               Show this help message"
+    $ECHO_CMD "Usage: sudo $0 [options]"
+    $ECHO_CMD
+    $ECHO_CMD "Options:"
+    $ECHO_CMD "  -b <number>      Number of attempts to consider as brute force (default: 80)"
+    $ECHO_CMD "  -t <seconds>     Time interval between attempts to be considered as consecutive (default: 45 seconds)"
+    $ECHO_CMD "  -i <timestamp>   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)"
+    $ECHO_CMD "  -m <timestamp>   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)"
+    $ECHO_CMD "  -o <output path> Path to store output (default: /tmp/linforce_analysis)"    
+    $ECHO_CMD "  -h               Show this help message"
 }
 
 # Validate natural numbers
@@ -28,7 +45,16 @@ brute_force=80
 time_interval=45
 min_timestamp="20220901000000"
 max_timestamp=""
-modod="/tmp/linforce_analysis"
+
+# Output dir creation. Searching for previous output dir
+old_path=$($FIND_CMD /tmp -type d -name "linforce*" -print -quit)
+if [[ -n "$old_path" ]]; then
+    modod="$old_path"
+else
+    $ECHO_CMD "No previous directories with output were found, a new one is being created..."
+    # Creating a new tmp output directory
+    modod=$(mktemp -d /tmp/linforce_analysis.XXXXXX)
+fi
 
 # Parse options
     while getopts ":b:t:i:m:o:h" opt; do
@@ -37,7 +63,7 @@ modod="/tmp/linforce_analysis"
                 if validate_number "$OPTARG"; then
                     brute_force="$OPTARG"
                 else
-                    echo "Invalid brute force attempts number: $OPTARG"
+                    $ECHO_CMD "Invalid brute force attempts number: $OPTARG"
                     exit 1
                 fi
                 ;;
@@ -45,7 +71,7 @@ modod="/tmp/linforce_analysis"
                 if validate_number "$OPTARG"; then
                     time_interval="$OPTARG"
                 else
-                    echo "Invalid time interval: $OPTARG"
+                    $ECHO_CMD "Invalid time interval: $OPTARG"
                     exit 1
                 fi
                 ;;
@@ -53,7 +79,7 @@ modod="/tmp/linforce_analysis"
                 if validate_number "$OPTARG"; then
                     min_timestamp="$OPTARG"
                 else
-                    echo "Invalid initial timestamp: $OPTARG"
+                    $ECHO_CMD "Invalid initial timestamp: $OPTARG"
                     exit 1
                 fi
                 ;;
@@ -61,7 +87,7 @@ modod="/tmp/linforce_analysis"
                 if validate_number "$OPTARG"; then
                     max_timestamp="$OPTARG"
                 else
-                    echo "Invalid maximum timestamp: $OPTARG"
+                    $ECHO_CMD "Invalid maximum timestamp: $OPTARG"
                     exit 1
                 fi
                 ;;
@@ -73,12 +99,12 @@ modod="/tmp/linforce_analysis"
                 exit 0
                 ;;
             \?)
-                echo "Invalid option: -$OPTARG"
+                $ECHO_CMD "Invalid option: -$OPTARG"
                 show_help
                 exit 1
                 ;;
             :)
-                echo "Option -$OPTARG requires an argument."
+                $ECHO_CMD "Option -$OPTARG requires an argument."
                 show_help
                 exit 1
                 ;;
@@ -89,11 +115,11 @@ modod="/tmp/linforce_analysis"
 linux_bruteforce_analysis() {
 
     local thisnow
-    thisnow=$(date +%Y%m%d)
+    thisnow=$($DATE_CMD +%Y%m%d)
     local evo_log="/var/log"
     
     if [[ ! -d $modod ]]; then
-        mkdir -p "$modod"
+        $MKDIR_CMD -p "$modod"
     fi
 
     # SUBMODULES  ====================================================================
@@ -122,14 +148,14 @@ linux_bruteforce_analysis() {
     local -A ips_used
     # Epoch timestamps
     local min_timestamp_epoch
-    min_timestamp_epoch=$(date -d "${min_timestamp:0:4}-${min_timestamp:4:2}-${min_timestamp:6:2} ${min_timestamp:8:2}:${min_timestamp:10:2}:${min_timestamp:12:2}" +"%s")
+    min_timestamp_epoch=$($DATE_CMD -d "${min_timestamp:0:4}-${min_timestamp:4:2}-${min_timestamp:6:2} ${min_timestamp:8:2}:${min_timestamp:10:2}:${min_timestamp:12:2}" +"%s")
     if [[ -n $max_timestamp ]]; then
         local max_timestamp_epoch
-        max_timestamp_epoch=$(date -d "${max_timestamp:0:4}-${max_timestamp:4:2}-${max_timestamp:6:2} ${max_timestamp:8:2}:${max_timestamp:10:2}:${max_timestamp:12:2}" +"%s")
+        max_timestamp_epoch=$($DATE_CMD -d "${max_timestamp:0:4}-${max_timestamp:4:2}-${max_timestamp:6:2} ${max_timestamp:8:2}:${max_timestamp:10:2}:${max_timestamp:12:2}" +"%s")
     fi
     # Store previous output files
     if [[ ! -d "$modod/previous_analysis" ]]; then
-     mkdir "$prevfolder"
+     $MKDIR_CMD "$prevfolder"
     fi
     # Compress previous analysis files
     sudo tar -cvf "$thisnow.tar" "$hitsof" "$btmpof" "$wtmpof" "$attemptsof" "$redzoneof" >/dev/null 2>/dev/null
@@ -147,71 +173,71 @@ linux_bruteforce_analysis() {
 
     # Check failed attempts (btmp dump)
     # File Header
-    echo 'IP    Reps    Date        User' > "$btmpof"
+    $ECHO_CMD 'IP    Reps    Date        User' > "$btmpof"
     # Loop to get all btmp files info
     for btmp in "$evo_log"/*btmp*; do
      btmp=$(basename "$btmp")
     # Check if btmp file is compressed; .gz, .bz2, .xz compression formats
-     if echo "$btmp" | grep -q 'gz'; then
+     if $ECHO_CMD "$btmp" | $GREP_CMD -q 'gz'; then
       # Copy btmp file to output directory
-      sudo rsync -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      sudo gunzip "$modod"/"$btmp" >/dev/null
-      btmp=$(echo "$btmp" | awk -F'.' '{print $1}')
+      $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
+      gunzip "$modod"/"$btmp" >/dev/null
+      btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
       # Parse btmp file to human readable format
-      sudo utmpdump "$modod"/"$btmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$btmpof"
-      sudo rm "$modod"/"$btmp"
-     elif echo "$btmp" | grep -q 'bz2'; then
-      sudo rsync -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      sudo bunzip2 "$modod"/"$btmp" >/dev/null
-      btmp=$(echo "$btmp" | awk -F'.' '{print $1}')
-      sudo utmpdump "$modod"/"$btmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$btmpof"
-      sudo rm "$modod"/"$btmp" "$modod"/"$btmp".bz2 2>/dev/null
-     elif echo "$btmp" | grep -q '.xz'; then
-      sudo rsync -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      sudo xz -d "$modod"/"$btmp" >/dev/null
-      btmp=$(echo "$btmp" | awk -F'.' '{print $1}')
-      sudo utmpdump "$modod"/"$btmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$btmpof"
-      sudo rm "$modod"/"$btmp"
+      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      rm "$modod"/"$btmp"
+     elif $ECHO_CMD "$btmp" | $GREP_CMD -q 'bz2'; then
+      $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
+      bunzip2 "$modod"/"$btmp" >/dev/null
+      btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
+      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      rm "$modod"/"$btmp" "$modod"/"$btmp".bz2 2>/dev/null
+     elif $ECHO_CMD "$btmp" | $GREP_CMD -q '.xz'; then
+      $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
+      xz -d "$modod"/"$btmp" >/dev/null
+      btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
+      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      rm "$modod"/"$btmp"
      else
      # Parse without decompress the file
-      sudo utmpdump "$evo_log"/"$btmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$btmpof"
+      $UTMP_CMD "$evo_log"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
      fi
     done
 
     # Check for possible brute force successful attempts (wtmp dump). Same process as btmp
-    echo 'IP    Reps    Date        User' > "$wtmpof"
+    $ECHO_CMD 'IP    Reps    Date        User' > "$wtmpof"
     for wtmp in "$evo_log"/*wtmp*; do
      wtmp=$(basename "$wtmp")
-     if echo "$wtmp" | grep -q 'gz'; then
-      sudo rsync -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      sudo gunzip "$modod"/"$wtmp" >/dev/null
-      wtmp=$(echo "$wtmp" | awk -F'.' '{print $1}')
-      sudo utmpdump "$modod"/"$wtmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$wtmpof"
-      sudo rm "$modod"/"$wtmp"
-     elif echo "$wtmp" | grep -q 'bz2'; then
-      sudo rsync -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      sudo bunzip2 "$modod"/"$wtmp" >/dev/null
-      wtmp=$(echo "$wtmp" | awk -F'.' '{print $1}')
-      sudo utmpdump "$modod"/"$wtmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$wtmpof"
-      sudo rm "$modod"/"$wtmp" "$modod"/"$wtmp".bz2 2>/dev/null
-     elif echo "$wtmp" | grep -q '.xz'; then
-      sudo rsync -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      sudo xz -d "$modod"/"$wtmp" >/dev/null
-      wtmp=$(echo "$wtmp" | awk -F'.' '{print $1}')
-      sudo utmpdump "$modod"/"$wtmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$wtmpof"
-      sudo rm "$modod"/"$wtmp"
+     if $ECHO_CMD "$wtmp" | $GREP_CMD -q 'gz'; then
+      $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
+      gunzip "$modod"/"$wtmp" >/dev/null
+      wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
+      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      rm "$modod"/"$wtmp"
+     elif $ECHO_CMD "$wtmp" | $GREP_CMD -q 'bz2'; then
+      $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
+      bunzip2 "$modod"/"$wtmp" >/dev/null
+      wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
+      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      rm "$modod"/"$wtmp" "$modod"/"$wtmp".bz2 2>/dev/null
+     elif $ECHO_CMD "$wtmp" | $GREP_CMD -q '.xz'; then
+      $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
+      xz -d "$modod"/"$wtmp" >/dev/null
+      wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
+      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      rm "$modod"/"$wtmp"
      else
-      sudo utmpdump $evo_log/"$wtmp" | awk -F']'  '{print $7, $8, $4}'  | awk -F'T' '{print $1 " -> " $2}' | awk -F',' '{print $1" "$2}' | uniq -c | awk '{print $2, $1, $3 $5, $7}' | sed 's/\[//g' | sed 's/-//g' | sed 's/://g' >> "$wtmpof"
+      $UTMP_CMD $evo_log/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
      fi
     done
 
 
-    echo -e "\n\nSuspicious login attempts\n"
+    $ECHO_CMD -e "\n\nSuspicious login attempts\n"
 
     # Check possible brute force attacks, comparing consecutive timestamps between failed logs from an IP | User | Differents IPs
     tail -n +2 "$btmpof" | while read -r thisip thisrep thistime thisuser; do
      # Get timestamp in epoch
-     thistimestamp=$(date -d "${thistime:0:4}-${thistime:4:2}-${thistime:6:2} ${thistime:8:2}:${thistime:10:2}:${thistime:12:2}" +"%s")
+     thistimestamp=$($DATE_CMD -d "${thistime:0:4}-${thistime:4:2}-${thistime:6:2} ${thistime:8:2}:${thistime:10:2}:${thistime:12:2}" +"%s")
     # Initialize counters
      # Counter for an IP
      if [[ -z "${ip_count[$thisip]}" ]]; then
@@ -258,15 +284,15 @@ linux_bruteforce_analysis() {
         # Avoid the script to break if the username contains backslash
         local thisusername="$thisuser"
             if [[ $thisusername == *"\\"* ]]; then
-             thisusername=$(echo "$thisuser" | sed 's/\\/\\\\/g')
+             thisusername=$($ECHO_CMD "$thisuser" | $SED_CMD 's/\\/\\\\/g')
             fi
         # Check if the user doesn't exist in the array of users for the current IP
-        if [[ -z $(echo "${users_tested[$thisip]}" | grep "$thisusername") ]]; then
+        if [[ -z $($ECHO_CMD "${users_tested[$thisip]}" | $GREP_CMD "$thisusername") ]]; then
          # Add the attempt to the total count of the current IP
          last_user_count="${user_count[${thisip}]}"
          user_count[${thisip}]=$((${user_count[${thisip}]} + $thisrep))
          # Check if the user array exist
-         if [[ -z $(echo "${users_tested[$thisip]}") ]]; then
+         if [[ -z $($ECHO_CMD "${users_tested[$thisip]}") ]]; then
           # Add the new user to the array of users for the current IP, if the user array didn't exist before
           users_tested[${thisip}]="${thisuser}"
          else
@@ -294,28 +320,28 @@ linux_bruteforce_analysis() {
        if [[ "${ip_count[$thisip]}" -ge $brute_force ]]; then
         # Print successfull brute force attempts in module logs
         if [[ ${ip_count[$thisip]} -gt ${thisipcount[$thisip]} ]]; then
-         echo "Brute Force: ${ip_count[$thisip]} attempts from ip $thisip at $(date -ud @$thistimestamp)" | tee -a "$attemptsof"
+         $ECHO_CMD "Brute Force: ${ip_count[$thisip]} attempts from ip $thisip at $($DATE_CMD -ud @$thistimestamp)" | tee -a "$attemptsof"
          # Set to the same value thisipcount to check later if there's a new attempt and add to the log as the previous command
          thisipcount[$thisip]=${ip_count[$thisip]}
         fi
         # Check if IP attempts is equal to attempts considered as brute force variable
         if [[ "${ip_count[$thisip]}" -ge $brute_force && "$last_ip_count" -lt $brute_force ]]; then
-         echo "[ALERT] Possible Brute Force attack from IP $thisip to user '$thisuser' at $(date -ud @$thistimestamp) [ALERT]" >> "$hitsof"
+         $ECHO_CMD "[ALERT] Possible Brute Force attack from IP $thisip to user '$thisuser' at $($DATE_CMD -ud @$thistimestamp) [ALERT]" >> "$hitsof"
         fi
         # Loop to analyze successful attempts for this IP
-        for u in $(cat "$wtmpof" | grep "$thisip" | awk '{print $4}' | sort | uniq); do
+        for u in $(cat "$wtmpof" | $GREP_CMD "$thisip" | $AWK_CMD '{print $4}' | sort | $UNIQ_CMD); do
          # Check if the IP is in hits file and if this user at that moment is in hits file for this IP
-         if [[ -z $(cat "$hitsof" 2>/dev/null | grep -E "Successful.*$u.*$(date -ud @$thistimestamp | awk -F: '{print $1}')") ]]; then
+         if [[ -z $(cat "$hitsof" 2>/dev/null | $GREP_CMD -E "Successful.*$u.*$($DATE_CMD -ud @$thistimestamp | $AWK_CMD -F: '{print $1}')") ]]; then
           # Loop for successfuls user attempts searching
-          for l in $(cat "$wtmpof" | grep "$thisip" | grep "$u" | awk '{print $3}'); do
+          for l in $(cat "$wtmpof" | $GREP_CMD "$thisip" | $GREP_CMD "$u" | $AWK_CMD '{print $3}'); do
            # Modify l timestamp to epoch
-           l=$(date -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
+           l=$($DATE_CMD -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
            # Compare last failed attempt against successful login, checking if last failed is lower than successfull attempt
            if [[ "${l}" -gt ${last_attempt[${thisip}]} ]]; then
             diff_time=$((${l}-${last_attempt[${thisip}]}))
             # Check if difference time is lower than time interval and if the user at that moment isn't in hits file add to it
             if [[ "${diff_time}" -le "${time_interval}" ]]; then
-             echo "[WARN] Successful Login to '$u' user in a Possible Brute Force attack from IP $thisip at $(date -ud @$thistimestamp), after ${ip_count[$thisip]} attempts [WARN]" | tee -a "$hitsof"
+             $ECHO_CMD "[WARN] Successful Login to '$u' user in a Possible Brute Force attack from IP $thisip at $($DATE_CMD -ud @$thistimestamp), after ${ip_count[$thisip]} attempts [WARN]" | tee -a "$hitsof"
             fi
            fi
           done
@@ -327,29 +353,29 @@ linux_bruteforce_analysis() {
        if [[ "${user_count[$thisip]}" -ge $brute_force ]]; then
         # Print in module logs brute force attempts
         if [[ ${user_count[$thisip]} -gt ${thisusercount[$thisip]} ]]; then
-         echo "Brute Force: ${user_count[$thisip]} attempts from ip $thisip at $(date -ud @$thistimestamp) time. Last user tested: ${last_user[${thisip}]}" | tee -a "$attemptsof"
+         $ECHO_CMD "Brute Force: ${user_count[$thisip]} attempts from ip $thisip at $($DATE_CMD -ud @$thistimestamp) time. Last user tested: ${last_user[${thisip}]}" | tee -a "$attemptsof"
          # Set to the same value thisusercount to check later if there's a new attempt and add to the log as the previous command
          thisusercount[$thisip]=${user_count[$thisip]}
         fi
                # Check if Users attempts are equal to attempts considered as brute force variable
         if [[ "${user_count[$thisip]}" -ge $brute_force && "$last_user_count" -lt $brute_force ]]; then
-         echo "[ALERT] Possible Password Spraying attack from IP $thisip at $(date -ud @$thistimestamp), testing users: '${users_tested[$thisip]}' [ALERT]" >> "$hitsof"
+         $ECHO_CMD "[ALERT] Possible Password Spraying attack from IP $thisip at $($DATE_CMD -ud @$thistimestamp), testing users: '${users_tested[$thisip]}' [ALERT]" >> "$hitsof"
         fi
         # Check users to analyze successful attempts. Check if they are in hits file, and if they aren't compare last failed attempt against successful login
-        for u in $(cat "$wtmpof" | grep "$thisip" | awk '{print $4}' | sort | uniq); do
+        for u in $(cat "$wtmpof" | $GREP_CMD "$thisip" | $AWK_CMD '{print $4}' | sort | $UNIQ_CMD); do
          # Check if the IP is in hits file and if this user isn't in hits file as Password Spraying at this timestamp
-         if [[ -n $(cat "$wtmpof" | grep "$thisip") && -z $(cat "$hitsof" 2>/dev/null | grep -E "$u.*Spraying.*$(date -ud @$thistimestamp | awk -F: '{print $1}')") ]]; then
+         if [[ -n $(cat "$wtmpof" | $GREP_CMD "$thisip") && -z $(cat "$hitsof" 2>/dev/null | $GREP_CMD -E "$u.*Spraying.*$($DATE_CMD -ud @$thistimestamp | $AWK_CMD -F: '{print $1}')") ]]; then
           # Loop for successfuls user attempts searching
-          for l in $(cat "$wtmpof" | grep "$thisip" | grep "$u" | awk '{print $3}'); do
+          for l in $(cat "$wtmpof" | $GREP_CMD "$thisip" | $GREP_CMD "$u" | $AWK_CMD '{print $3}'); do
            # Modify l timestamp to epoch
-           l=$(date -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
+           l=$($DATE_CMD -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
            # Compare last failed attempt against successful login, checking if last failed is lower than successfull attempt
            if [[ "${l}" -gt ${last_attempt[${thisip}]} ]]; then
             diff_time=$((${l}-${last_attempt[${thisip}]}))
             # Check if difference time is lower than time interval and if the user isn't in hits file add to it
             if [[ "${diff_time}" -le "${time_interval}" ]]; then
-             echo "[WARN] Successful Login to '$u' user in a Possible Password Spraying attack from IP $thisip at $(date -ud @$thistimestamp), after testing '${user_count[$thisip]}' users [WARN]" | tee -a "$hitsof"
-             echo "Users tested: ${users_tested[$thisip]}" >> "$hitsof"
+             $ECHO_CMD "[WARN] Successful Login to '$u' user in a Possible Password Spraying attack from IP $thisip at $($DATE_CMD -ud @$thistimestamp), after testing '${user_count[$thisip]}' users [WARN]" | tee -a "$hitsof"
+             $ECHO_CMD "Users tested: ${users_tested[$thisip]}" >> "$hitsof"
             fi
            fi
           done
@@ -398,26 +424,26 @@ linux_bruteforce_analysis() {
        if [[ ${diff_ip_count[$thisuser]} -ge $brute_force ]]; then
         # Print in module logs brute force attempts
         if [[ ${diff_ip_count[$thisuser]} -gt ${latest_diff_ip_count[$thisuser]} ]]; then
-         echo "Brute Force: ${diff_ip_count[$thisuser]} attempts to user $thisuser at $(date -ud @$thistimestamp). Last attempt from IP: $thisip" | tee -a "$attemptsof"
+         $ECHO_CMD "Brute Force: ${diff_ip_count[$thisuser]} attempts to user $thisuser at $($DATE_CMD -ud @$thistimestamp). Last attempt from IP: $thisip" | tee -a "$attemptsof"
          # Set to the same value latest_diff_ip_count to check later if there's a new attempt and add to the log as the previous command
          latest_diff_ip_count[$thisuser]=${diff_ip_count[$thisuser]}
         fi
         # First time IP attempts are considered as brute force
         # Check if IP attempts are equal to attempts considered as brute force variable
         if [[ "${diff_ip_count[$thisip]}" -ge $brute_force && "$last_diff_ip_count" -lt $brute_force ]]; then
-         echo "[ALERT] Possible Dynamic IP attack to user '$thisuser' at $(date -ud @$thistimestamp) time. IPs used: ${ips_used[$thisuser]} [ALERT]" >> "$hitsof"
+         $ECHO_CMD "[ALERT] Possible Dynamic IP attack to user '$thisuser' at $($DATE_CMD -ud @$thistimestamp) time. IPs used: ${ips_used[$thisuser]} [ALERT]" >> "$hitsof"
         fi
         # Check user in wtmp to analyze successful attempts. if they aren't, compare last failed attempt against successful login
-        for l in $(cat "$wtmpof" | grep "$thisuser" | grep "$thisip" | awk '{print $3}'); do
+        for l in $(cat "$wtmpof" | $GREP_CMD "$thisuser" | $GREP_CMD "$thisip" | $AWK_CMD '{print $3}'); do
          # Modify l timestamp to epoch
-         l=$(date -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
+         l=$($DATE_CMD -d "${l:0:4}-${l:4:2}-${l:6:2} ${l:8:2}:${l:10:2}:${l:12:2}" +"%s")
          # Check if timestamp is greater than last attempt timestamp and if the user isn't in hits file at this moment
-         if [[ "${l}" -gt ${last_attempt[${thisuser}]} && -z $(cat "$hitsof" 2>/dev/null | grep -E "Succesful.*Dynamic.*$thisuser.*$(date -ud @$thistimestamp | awk -F: '{print $1}')") ]]; then
+         if [[ "${l}" -gt ${last_attempt[${thisuser}]} && -z $(cat "$hitsof" 2>/dev/null | $GREP_CMD -E "Succesful.*Dynamic.*$thisuser.*$($DATE_CMD -ud @$thistimestamp | $AWK_CMD -F: '{print $1}')") ]]; then
           diff_time=$((${l}-${last_attempt[${thisuser}]}))
           # Check if difference time is lower than time interval and if the user isn't in hits file add to it  
-          if [[ "${diff_time}" -le "${time_interval}" && -z $(cat "$hitsof" 2>/dev/null | grep "$thisuser") ]]; then
-           echo "[WARN] Successful Login to '$thisuser' user in a Possible Dynamic IP attack from IP $thisip at $(date -ud @$thistimestamp) time, after ${diff_ip_count[$thisuser]} attempts [WARN]" | tee -a "$hitsof"
-           echo "Ips used: ${ips_used[$thisuser]}" >> "$hitsof"
+          if [[ "${diff_time}" -le "${time_interval}" && -z $(cat "$hitsof" 2>/dev/null | $GREP_CMD "$thisuser") ]]; then
+           $ECHO_CMD "[WARN] Successful Login to '$thisuser' user in a Possible Dynamic IP attack from IP $thisip at $($DATE_CMD -ud @$thistimestamp) time, after ${diff_ip_count[$thisuser]} attempts [WARN]" | tee -a "$hitsof"
+           $ECHO_CMD "Ips used: ${ips_used[$thisuser]}" >> "$hitsof"
           fi
          fi
         done
@@ -429,8 +455,8 @@ linux_bruteforce_analysis() {
     # If there is a Red Zone defined it will create a new file with those attempts
     if [[ -n "$max_timestamp_epoch" ]]; then
      cat "$attemptsof" | while read -r line; do
-      if [[ $(echo "$line" | awk '{print $9}') -ge "$min_timestamp_epoch" && $(echo "$line" | awk '{print $9}') -le "$max_timestamp_epoch" ]]; then
-       echo "$line" >> "$redzoneof"
+      if [[ $($ECHO_CMD "$line" | $AWK_CMD '{print $9}') -ge "$min_timestamp_epoch" && $($ECHO_CMD "$line" | $AWK_CMD '{print $9}') -le "$max_timestamp_epoch" ]]; then
+       $ECHO_CMD "$line" >> "$redzoneof"
       fi
      done
     fi
