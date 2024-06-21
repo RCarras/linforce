@@ -16,6 +16,7 @@ SED_CMD=$($WHICH_CMD sed)
 UNIQ_CMD=$($WHICH_CMD uniq)
 RSYNC_CMD=$($WHICH_CMD rsync)
 FIND_CMD=$($WHICH_CMD find)
+MKTEMP_CMD=$($WHICH_CMD mktemp)
 
 # Show help
 show_help() {
@@ -53,7 +54,7 @@ if [[ -n "$old_path" ]]; then
 else
     $ECHO_CMD "No previous directories with output were found, a new one is being created..."
     # Creating a new tmp output directory
-    modod=$(mktemp -d /tmp/linforce_analysis.XXXXXX)
+    modod=$($MKTEMP_CMD -d /tmp/linforce_analysis.XXXXXX)
 fi
 
 # Parse options
