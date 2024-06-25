@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Commands absolute paths 
 for thiscommand in "date" "awk" "grep" "utmpdump" "mkdir" "mktemp" "mv" "tar" "echo" "sed" "uniq" "rsync" "gunzip" "xz" "rm" "bunzip2" "find"; do
