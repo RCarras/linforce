@@ -1,22 +1,10 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Commands absolute paths 
-if [[ -n /bin/which ]]; then
-    WHICH_CMD="/bin/which"
-else
-    WHICH_CMD="/usr/bin/which"
-fi
-DATE_CMD=$($WHICH_CMD date)
-AWK_CMD=$($WHICH_CMD awk)
-GREP_CMD=$($WHICH_CMD grep)
-UTMP_CMD=$($WHICH_CMD utmpdump)
-MKDIR_CMD=$($WHICH_CMD mkdir)
-ECHO_CMD=$($WHICH_CMD echo)
-SED_CMD=$($WHICH_CMD sed)
-UNIQ_CMD=$($WHICH_CMD uniq)
-RSYNC_CMD=$($WHICH_CMD rsync)
-FIND_CMD=$($WHICH_CMD find)
-MKTEMP_CMD=$($WHICH_CMD mktemp)
+for thiscommand in "date" "awk" "grep" "utmpdump" "mkdir" "mktemp" "mv" "tar" "echo" "sed" "uniq" "rsync" "gunzip" "xz" "rm" "bunzip2" "find"; do
+    uppercommand="$(echo $thiscommand | tr '[:lower:]' '[:upper:]')_CMD"
+    eval ${uppercommand}="/bin/$thiscommand"
+done
 
 # Show help
 show_help() {
@@ -159,9 +147,9 @@ linux_bruteforce_analysis() {
      $MKDIR_CMD "$prevfolder"
     fi
     # Compress previous analysis files
-    sudo tar -cvf "$thisnow.tar" "$hitsof" "$btmpof" "$wtmpof" "$attemptsof" "$redzoneof" >/dev/null 2>/dev/null
-    sudo rm "$hitsof" "$btmpof" "$wtmpof" "$attemptsof" "$redzoneof" >/dev/null 2>/dev/null
-    sudo mv "$thisnow.tar" "$prevfolder" 2>/dev/null
+    $TAR_CMD -cvf "$thisnow.tar" "$hitsof" "$btmpof" "$wtmpof" "$attemptsof" "$redzoneof" >/dev/null 2>/dev/null
+    $RM_CMD "$hitsof" "$btmpof" "$wtmpof" "$attemptsof" "$redzoneof" >/dev/null 2>/dev/null
+    $MV_CMD "$thisnow.tar" "$prevfolder" 2>/dev/null
 
 
 
@@ -182,26 +170,26 @@ linux_bruteforce_analysis() {
      if $ECHO_CMD "$btmp" | $GREP_CMD -q 'gz'; then
       # Copy btmp file to output directory
       $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      gunzip "$modod"/"$btmp" >/dev/null
+      $GUNZIP_CMD "$modod"/"$btmp" >/dev/null
       btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
       # Parse btmp file to human readable format
-      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
-      rm "$modod"/"$btmp"
+      $UTMPDUMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      $RM_CMD "$modod"/"$btmp"
      elif $ECHO_CMD "$btmp" | $GREP_CMD -q 'bz2'; then
       $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      bunzip2 "$modod"/"$btmp" >/dev/null
+      $BUNZIP2_CMD "$modod"/"$btmp" >/dev/null
       btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
-      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
-      rm "$modod"/"$btmp" "$modod"/"$btmp".bz2 2>/dev/null
+      $UTMPDUMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      $RM_CMD "$modod"/"$btmp" "$modod"/"$btmp".bz2 2>/dev/null
      elif $ECHO_CMD "$btmp" | $GREP_CMD -q '.xz'; then
       $RSYNC_CMD -avP $evo_log/"$btmp" "$modod"/"$btmp" >/dev/null
-      xz -d "$modod"/"$btmp" >/dev/null
+      $XZ_CMD -d "$modod"/"$btmp" >/dev/null
       btmp=$($ECHO_CMD "$btmp" | $AWK_CMD -F'.' '{print $1}')
-      $UTMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
-      rm "$modod"/"$btmp"
+      $UTMPDUMP_CMD "$modod"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      $RM_CMD "$modod"/"$btmp"
      else
      # Parse without decompress the file
-      $UTMP_CMD "$evo_log"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
+      $UTMPDUMP_CMD "$evo_log"/"$btmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$btmpof"
      fi
     done
 
@@ -211,24 +199,24 @@ linux_bruteforce_analysis() {
      wtmp=$(basename "$wtmp")
      if $ECHO_CMD "$wtmp" | $GREP_CMD -q 'gz'; then
       $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      gunzip "$modod"/"$wtmp" >/dev/null
+      $GUNZIP_CMD "$modod"/"$wtmp" >/dev/null
       wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
-      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
-      rm "$modod"/"$wtmp"
+      $UTMPDUMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      $RM_CMD "$modod"/"$wtmp"
      elif $ECHO_CMD "$wtmp" | $GREP_CMD -q 'bz2'; then
       $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      bunzip2 "$modod"/"$wtmp" >/dev/null
+      $BUNZIP2_CMD "$modod"/"$wtmp" >/dev/null
       wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
-      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
-      rm "$modod"/"$wtmp" "$modod"/"$wtmp".bz2 2>/dev/null
-     elif $ECHO_CMD "$wtmp" | $GREP_CMD -q '.xz'; then
+      $UTMPDUMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      $RM_CMD "$modod"/"$wtmp" "$modod"/"$wtmp".bz2 2>/dev/null
+     elif $ECHO_CMD "$wtmp" | $GREP_CMD -q 'xz'; then
       $RSYNC_CMD -avP $evo_log/"$wtmp" "$modod"/"$wtmp" >/dev/null
-      xz -d "$modod"/"$wtmp" >/dev/null
+      $XZ_CMD -d "$modod"/"$wtmp" >/dev/null
       wtmp=$($ECHO_CMD "$wtmp" | $AWK_CMD -F'.' '{print $1}')
-      $UTMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
-      rm "$modod"/"$wtmp"
+      $UTMPDUMP_CMD "$modod"/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      $RM_CMD "$modod"/"$wtmp"
      else
-      $UTMP_CMD $evo_log/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
+      $UTMPDUMP_CMD $evo_log/"$wtmp" | $AWK_CMD -F']'  '{print $7, $8, $4}'  | $AWK_CMD -F'T' '{print $1 " -> " $2}' | $AWK_CMD -F',' '{print $1" "$2}' | $UNIQ_CMD -c | $AWK_CMD '{print $2, $1, $3 $5, $7}' | $SED_CMD 's/\[//g' | $SED_CMD 's/-//g' | $SED_CMD 's/://g' >> "$wtmpof"
      fi
     done
 
