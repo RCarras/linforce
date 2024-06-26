@@ -41,7 +41,7 @@ sudo ./linforce.sh
 
 5. **Check results**:
 ```
-/tmp/linforce_analysis
+/tmp/linforce_XXX
 ```
 
 # Usage Options
@@ -52,8 +52,10 @@ sudo ./linforce.sh
 - *-i < timestamp >*:   Initial timestamp for the analysis in the format YYYYmmddHHMMSS (default: 20220901000000)
 
 - *-m < timestamp >*:   Maximum timestamp for the analysis in the format YYYYmmddHHMMSS (default: current date)
+  
+- *-o < output >*:      Output directory (default: automatic created temporary file. /tmp/linforce_XXX).
 
-- *-h*:               Show this help message
+- *-h*:                 Show this help message
 
 # Creators
 - **Rafael Carrasco**: https://www.linkedin.com/in/rafael-carrasco-vilaplana-3199a492
